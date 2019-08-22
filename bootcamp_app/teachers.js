@@ -8,6 +8,11 @@ const pool = new Pool ({
   database: 'bootcampx'
 });
 
+const cohortName = process.argv[2];
+const limit = process.argv[3] || 5;
+// Store all potentially malicious values in an array.
+const values = ['%' + cohortName + '%'];
+
 pool.connect((err) => {
   if (err) throw err;
   console.log('connected to database');
@@ -18,9 +23,9 @@ FROM assistance_requests
 JOIN teachers ON teachers.id = teacher_id
 JOIN students ON students.id = student_id
 JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name LIKE '%${process.argv[2] || 'JUL02'}%'
+WHERE cohorts.name LIKE $1
 ORDER BY teacher;
-`)
+`, values)
 .then(res => {
   res.rows.forEach(user => {
     console.log(`${user.cohort} has a teacher ${user.teacher}`);
